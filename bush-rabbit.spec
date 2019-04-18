@@ -1,6 +1,6 @@
 %define name              bush-rabbit
-%define version           0.1
-%define unmangled_version 0.1
+%define version           0.2
+%define unmangled_version 0.2
 %define release           1
 %define INSTALLDIR        %{buildroot}/usr/bin
 
