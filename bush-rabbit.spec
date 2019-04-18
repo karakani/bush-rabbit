@@ -2,7 +2,7 @@
 %define version           0.1
 %define unmangled_version 0.1
 %define release           1
-%define INSTALLDIR        %{buildroot}/usr/local/sbin
+%define INSTALLDIR        %{buildroot}/usr/bin
 
 Summary:   server management utilities
 Name:      %{name}
@@ -32,4 +32,4 @@ rm -rf %{buildroot}
 
 %files
 %defattr(755, root, root)
-/usr/local/sbin/cronrun
+/usr/bin/cronrun
