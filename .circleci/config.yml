@@ -1,15 +1,27 @@
 # Use the latest 2.1 version of CircleCI pipeline processing engine, see https://circleci.com/docs/2.0/configuration-reference/
 version: 2.1
 
-# Use a package of configuration called an orb, see https://circleci.com/docs/2.0/orb-intro/
-orbs:
-  # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.3.1
+jobs:
+  build:
+    docker:
+      - image: rpmbuild/centos7
+    steps:
+      - package
+      - build_rpm
 
-# Orchestrate or schedule a set of jobs, see https://circleci.com/docs/2.0/workflows/
-workflows:
-  # Name the workflow "Welcome"
-  Welcome:
-    # Run the welcome/run job in its own container
-    jobs:
-      - welcome/run
+      - store_artifacts:
+          path: /home/builder/rpm/noarch
+          destination: rpms
+      - store_artifacts:
+          path: /home/builder/packages
+          destination: tarball
+
+
+commands:
+  package:
+    steps:
+      - run: ./scripts/package.sh
+  build_rpm:
+    description: build rpm package
+    steps:
+      - run: rpmbuild -ta --debug /home/builder/packages/bush-rabbit.tgz
