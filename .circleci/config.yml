@@ -6,6 +6,7 @@ jobs:
     docker:
       - image: rpmbuild/centos7
     steps:
+      - checkout
       - package
       - build_rpm
 
