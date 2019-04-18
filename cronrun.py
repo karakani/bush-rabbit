@@ -3,9 +3,10 @@ import argparse
 import os
 import subprocess
 import sys
+import syslog
 
 PRODUCT_NAME = "cronrun.py"
-RELEASE_VERSION = "0.1"
+RELEASE_VERSION = "0.2"
 
 
 def main():
@@ -14,6 +15,18 @@ def main():
     parser.add_argument("--verbose", action='store_true', help="useful for debug")
     parser.add_argument("--version", action='store_true', help="print version")
     parser.add_argument("--use-tmpfile-prefix", default="/tmp/", help="directory path for temporary directory")
+
+    parser.add_argument("--syslog-ident", default=PRODUCT_NAME)
+    parser.add_argument("--syslog-error", help="output SYSLOG_ERROR to syslog if non-zero exit")
+
+    parser.add_argument("--syslog-error-level",
+                        default=syslog.LOG_WARNING,
+                        help="syslog error level. default: {}".format(syslog.LOG_WARNING))
+
+    parser.add_argument("--syslog-error-facility",
+                        default=syslog.LOG_LOCAL0,
+                        help="syslog error facility. default: {}".format(syslog.LOG_LOCAL0))
+
     parser.add_argument("commands", nargs=argparse.REMAINDER)
     args = parser.parse_args()
 
@@ -61,6 +74,8 @@ def main():
                 sys.stdout.write(line)
 
         verbose(args, "stdout and stderr was dumped to stdout")
+
+        record_error(args, ret_code)
 
     # ########## ########## ########## ##########
     # clean up
@@ -124,6 +139,15 @@ def get_tmp_name(args):
         return None
 
     return "{}cronlog.{}".format(args.use_tmpfile_prefix, os.getpid())
+
+
+def record_error(args, ret_code):
+    if args.syslog_error:
+        verbose(args, "write error to syslog")
+
+        syslog.openlog(args.syslog_ident, args.syslog_error_facility)
+        syslog.syslog(args.syslog_error_level, "{} <status={}>".format(args.syslog_error, ret_code))
+        syslog.closelog()
 
 
 def verbose(args, message):
